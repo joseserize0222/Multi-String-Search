@@ -3,6 +3,12 @@
     <id>com.github.alaindavid001.multistringsearch</id>
     <name>Multi-String Search</name>
     <vendor email="alaindavidescarragarcia@gmail.com" url="https://github.com/Alain-David-001">Alain Escarrá</vendor>
+    <description>
+        <![CDATA[
+            A simple plugin that provides a user-friendly interface for searching multiple strings within the current file, utilizing the Aho-Corasick algorithm for efficient searching.
+        ]]>
+    </description>
+
 
     <depends>com.intellij.modules.platform</depends>
 

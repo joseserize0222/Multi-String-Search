@@ -1,8 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.alaindavid001.multistringsearch</id>
-    <name>Multi-String-Search</name>
-    <vendor>alain-david-001</vendor>
+    <name>Multi-String Search</name>
+    <vendor email="alaindavidescarragarcia@gmail.com" url="https://github.com/Alain-David-001">Alain Escarrá</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 

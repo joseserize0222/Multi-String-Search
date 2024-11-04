@@ -9,7 +9,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.alaindavid001.multistringsearch.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.github.alaindavid001.multistringsearch.toolWindow.MyToolWindowFactory" id="Multiple String Search" anchor="right" icon="AllIcons.Actions.Search"/>
     </extensions>
 
     <applicationListeners>

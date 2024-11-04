@@ -52,6 +52,7 @@ class MyToolWindowFactory : ToolWindowFactory {
     override fun shouldBeAvailable(project: Project) = true
 
     class MyToolWindow(toolWindow: ToolWindow) : Disposable {
+        private val myDisposable : Disposable = Disposer.newDisposable()
 
         init {
             toolWindow.project.messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
@@ -74,7 +75,6 @@ class MyToolWindowFactory : ToolWindowFactory {
                 }
             }, myDisposable)
         }
-        private val myDisposable : Disposable = Disposer.newDisposable()
 
         private val executor: ExecutorService = Executors.newSingleThreadExecutor()
         private var currentTask: Future<*>? = null

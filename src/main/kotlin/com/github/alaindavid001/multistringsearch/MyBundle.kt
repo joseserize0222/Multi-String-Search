@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.template
+package com.github.alaindavid001.multistringsearch
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

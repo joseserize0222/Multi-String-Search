@@ -12,7 +12,6 @@ import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
 import javax.swing.BorderFactory
-import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.border.LineBorder
@@ -68,15 +67,14 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
 
     private fun createResultPanel(line: Int, col: Int, strLen: Int, matchPosition: Int): JBPanel<JBPanel<*>> {
         return JBPanel<JBPanel<*>>().apply {
-            border = BorderFactory.createEmptyBorder(0, 13, 0, 5)
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 5)
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             alignmentX = Component.LEFT_ALIGNMENT
 
+            add(createNavigateButton(matchPosition))
             add(JBLabel(createHighlightedLabelText(line, col, strLen)).apply {
                 alignmentX = Component.LEFT_ALIGNMENT
             })
-            add(Box.createHorizontalGlue()) // This will push the button to the right
-            add(createNavigateButton(matchPosition))
         }
     }
 
@@ -102,6 +100,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             minimumSize = Dimension(20, 20)
             maximumSize = Dimension(20, 20)
             alignmentX = Component.CENTER_ALIGNMENT
+            alignmentY = Component.CENTER_ALIGNMENT
             isBorderPainted = false // Remove the border
             cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
 

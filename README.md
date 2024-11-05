@@ -1,4 +1,4 @@
-# <img src="src/main/resources/META-INF/pluginIcon.svg" alt="Icon" style="vertical-align: middle; height: 3em;"> Multi-String Search Plugin
+# <img src="src/main/resources/META-INF/pluginIcon.svg" alt="Icon" align="right" style="height: 43px;"> Multi-String Search Plugin
 
 The Multi-String Search Plugin enables fast and efficient searching of multiple strings within files directly in the IntelliJ IDEA environment. This plugin provides an intuitive user interface to input multiple search patterns, navigate through matches, and track file changes, making it an excellent tool for code analysis and pattern detection.
 

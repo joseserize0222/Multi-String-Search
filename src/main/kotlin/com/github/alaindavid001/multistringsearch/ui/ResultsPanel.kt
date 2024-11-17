@@ -24,12 +24,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         alignmentX = Component.CENTER_ALIGNMENT
         alignmentY = Component.CENTER_ALIGNMENT
         border = BorderFactory.createEmptyBorder(0,0,10,0)
-        add(JBPanel<JBPanel<*>>().apply {
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            alignmentX = Component.CENTER_ALIGNMENT
-            border = BorderFactory.createEmptyBorder(90,0,0,0)
-            add(JBLabel(MyBundle.message("selectAFile")))
-        })
+        showNoFileSelectedMessage(this)
     }
 
     fun getWrappedResultsPanel() = JBPanel<JBPanel<*>>().apply {
@@ -111,8 +106,8 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         }
     }
 
-    fun showNoFileSelectedMessage() {
-        resultsList.addComponent(JBPanel<JBPanel<*>>().apply {
+    fun showNoFileSelectedMessage(targetPanel: JBPanel<JBPanel<*>> = resultsList) {
+        targetPanel.addComponent(JBPanel<JBPanel<*>>().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             alignmentX = Component.CENTER_ALIGNMENT
             border = BorderFactory.createEmptyBorder(90, 0, 0, 0)

@@ -1,5 +1,6 @@
 package com.github.alaindavid001.multistringsearch.ui
 
+import com.github.alaindavid001.multistringsearch.MyBundle
 import com.github.alaindavid001.multistringsearch.search.SearchManager
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.observable.util.addComponent
@@ -27,7 +28,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             alignmentX = Component.CENTER_ALIGNMENT
             border = BorderFactory.createEmptyBorder(90,0,0,0)
-            add(JBLabel("Please select a file"))
+            add(JBLabel(MyBundle.message("selectAFile")))
         })
     }
 
@@ -40,7 +41,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             preferredSize = Dimension(Int.MAX_VALUE, 18)
             maximumSize = Dimension(Int.MAX_VALUE, 100)
 
-            add(JBLabel("Results:").apply {
+            add(JBLabel(MyBundle.message("results")).apply {
                 alignmentX = Component.CENTER_ALIGNMENT
                 font = JBFont.h4()
             })
@@ -115,7 +116,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             alignmentX = Component.CENTER_ALIGNMENT
             border = BorderFactory.createEmptyBorder(90, 0, 0, 0)
-            add(JBLabel("Please select a file"))
+            add(JBLabel(MyBundle.message("selectAFile")))
         })
     }
 

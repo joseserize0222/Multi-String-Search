@@ -11,19 +11,37 @@ import java.util.*
  * @param patterns A list of patterns
  */
 class AhoCorasick(private val text: String, private val patterns: List<String>) {
-
-    private val alphaSize = 128
-    private val base = 0
+    private val alphaSet: MutableSet<Char> = text.toHashSet()
+    private val hashMap: MutableMap<Char, Int> = HashMap()
+    private var alphaSize = 128
     private val trie = mutableListOf<Vertex>()
     private val matches = Array(patterns.size) { mutableListOf<Int>() }
 
     init {
+        processAlphabet()
         trie.add(Vertex(0))
         for (i in patterns.indices) {
             addPattern(patterns[i], i)
         }
         processSuffixLinks()
         findMatches()
+    }
+
+    private fun processAlphabet() {
+        for (pattern in patterns) {
+            for (char in pattern) {
+                alphaSet.add(char)
+            }
+        }
+        alphaSet.add(Char.MIN_VALUE)
+        for ((i, char) in alphaSet.withIndex()) {
+            hashMap[char] = i
+        }
+        alphaSize = hashMap.size
+    }
+
+    private fun getCode(char: Char) : Int {
+        return hashMap[char]!!
     }
 
     /**
@@ -43,7 +61,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
     private fun addPattern(word: String, patIndex: Int) {
         var curr = 0
         for (char in word) {
-            val index = char.code - base
+            val index = getCode(char)
             if (trie[curr].edge[index] == -1) {
                 trie[curr].edge[index] = trie.size
                 trie.add(Vertex(trie.size, curr, char))
@@ -89,7 +107,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
         }
         if (ind != 0 && curr.p != 0) {
             var potentialBest = trie[curr.p].link
-            val currChar = curr.pChar.code - base
+            val currChar = getCode(curr.pChar)
             while (true) {
                 if (trie[potentialBest].edge[currChar] != -1) {
                     curr.link = trie[potentialBest].edge[currChar]
@@ -118,7 +136,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
         var curr = trie[0]
 
         for (i in text.indices) {
-            val ind = text[i].code - base
+            val ind = getCode(text[i])
             while (true) {
                 if (curr.edge[ind] != -1) {
                     curr = trie[curr.edge[ind]]

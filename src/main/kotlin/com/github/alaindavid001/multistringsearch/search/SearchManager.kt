@@ -40,7 +40,7 @@ class SearchManager {
     private fun updateResults(project: Project, patternInputPanel: PatternInputPanel, resultsPanel: ResultsPanel) {
         ApplicationManager.getApplication().executeOnPooledThread {
             myOpenedFileText = getOpenedFileText(project)
-            myPatterns = patternInputPanel.getTextFieldValues()
+            myPatterns = patternInputPanel.getTextFieldValues().toSet().toList()
 
             resultsPanel.clearResults()
             val ac = AhoCorasick(myOpenedFileText ?: "", myPatterns)

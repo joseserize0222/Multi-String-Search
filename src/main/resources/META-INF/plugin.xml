@@ -17,8 +17,4 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.alaindavid001.multistringsearch.toolWindow.MyToolWindowFactory" id="Multiple String Search" anchor="right" icon="AllIcons.Actions.Search"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.alaindavid001.multistringsearch.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 </idea-plugin>

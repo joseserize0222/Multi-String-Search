@@ -6,6 +6,7 @@ import com.github.alaindavid001.multistringsearch.utils.AhoCorasick
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.CaretModel
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -63,6 +64,7 @@ class SearchManager {
         val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
         val caretModel: CaretModel = editor.caretModel
         caretModel.moveToOffset(offset)
+        editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
         IdeFocusManager.getInstance(project).requestFocus(editor.contentComponent, true)
     }
 

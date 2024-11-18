@@ -101,5 +101,86 @@ class AhoCorasickTest : BasePlatformTestCase() {
         assertEquals("Pattern 'import' should match at indices 0, 44", listOf(0, 44), matches[2])
     }
 
+    fun `test single pattern match`() {
+        val text = "abracadabra"
+        val patterns = listOf("abra")
+        val ac = AhoCorasick(text, patterns)
+
+        val expectedMatches = listOf(listOf(0, 7))
+        val matches = ac.getMatches()
+        assert(expectedMatches.size == ac.getMatches().size)
+        for (i in expectedMatches.indices) {
+            assertEquals(expectedMatches[i], matches[i])
+        }
+    }
+
+    fun `test multiple patterns with overlapping matches`() {
+        val text = "ababcabc"
+        val patterns = listOf("ab", "abc")
+        val ac = AhoCorasick(text, patterns)
+
+        val expectedMatches = listOf(
+            listOf(0, 2, 5),
+            listOf(2, 5)
+        )
+
+        val matches = ac.getMatches()
+        assert(expectedMatches.size == ac.getMatches().size)
+        for (i in expectedMatches.indices) {
+            assertEquals(expectedMatches[i], matches[i])
+        }
+    }
+
+    fun `test patterns with no matches`() {
+        val text = "hello world"
+        val patterns = listOf("xyz", "abc")
+        val ac = AhoCorasick(text, patterns)
+
+        val expectedMatches = listOf(
+            emptyList<Int>(),
+            emptyList<Int>()
+        )
+        val matches = ac.getMatches()
+        assert(expectedMatches.size == ac.getMatches().size)
+        for (i in expectedMatches.indices) {
+            assertEquals(expectedMatches[i], matches[i])
+        }
+    }
+
+    fun `test multiple matches with similar patterns`() {
+        val text = "aaaaa"
+        val patterns = listOf("a", "aa", "aaa")
+        val ac = AhoCorasick(text, patterns)
+
+        val expectedMatches = listOf(
+            listOf(0, 1, 2, 3, 4),
+            listOf(0, 1, 2, 3),
+            listOf(0, 1, 2)
+        )
+        val matches = ac.getMatches()
+        assert(expectedMatches.size == ac.getMatches().size)
+        for (i in expectedMatches.indices) {
+            assertEquals(expectedMatches[i], matches[i])
+        }
+    }
+
+    fun `test patterns with special characters`() {
+        val text = "a$#b^&c"
+        val patterns = listOf("$#", "^&", "a$", "b^")
+        val ac = AhoCorasick(text, patterns)
+
+        val expectedMatches = listOf(
+            listOf(1),
+            listOf(4),
+            listOf(0),
+            listOf(3)
+        )
+        val matches = ac.getMatches()
+        assert(expectedMatches.size == ac.getMatches().size)
+        for (i in expectedMatches.indices) {
+            assertEquals(expectedMatches[i], matches[i])
+        }
+    }
+
     override fun getTestDataPath() = "src/test/testData/ahoCorasickTests"
 }

@@ -17,6 +17,7 @@ import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.border.LineBorder
 import com.intellij.ui.components.JBScrollPane
+import javax.swing.JScrollBar
 
 class ResultsPanel(private val project: Project, private val searchManager: SearchManager) {
     private val resultsList = JBPanel<JBPanel<*>>().apply {
@@ -26,6 +27,10 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         border = BorderFactory.createEmptyBorder(0,0,10,0)
         showNoFileSelectedMessage(this)
     }
+    private var resultsScrollPane = JBScrollPane()
+    private var allMatches: List<MatchData> = emptyList()
+    private var currentPage: Int = 0
+    private val pageSize: Int = 10
 
     fun getWrappedResultsPanel() = JBPanel<JBPanel<*>>().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -43,22 +48,43 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         })
 
         add(JBPanel<JBPanel<*>>().apply {
-            add(JBScrollPane(resultsList).apply {
+            resultsScrollPane = JBScrollPane(resultsList).apply {
                 preferredSize = Dimension(300, 200)
                 isOverlappingScrollBar = true
                 border = LineBorder(JBColor.LIGHT_GRAY, 1, true)
-            })
+            }
+            add(resultsScrollPane)
         })
+        addScrollListener()
     }
 
     fun updateResultsList(matches: Array<MutableList<Int>>) {
-        for ((ind, matchPositionsForPatternInd) in matches.withIndex()) {
-            for (matchPosition in matchPositionsForPatternInd) {
-                val (line, col) = searchManager.getLineAndColumn(project, matchPosition) ?: Pair(0, 0)
-                val strLen = searchManager.myPatterns[ind].length
-                resultsList.addComponent(createResultPanel(line, col, strLen, matchPosition))
+        allMatches = matches.flatMapIndexed { patternIndex, positions ->
+            positions.map { position ->
+                val (line, col) = searchManager.getLineAndColumn(project, position) ?: Pair(0, 0)
+                MatchData(line, col, searchManager.myPatterns[patternIndex].length, position)
             }
         }
+        println(allMatches.size)
+
+        currentPage = 0
+        clearResults()
+        loadNextPage()
+    }
+
+    private fun loadNextPage() {
+        val startIndex = currentPage * pageSize
+        val endIndex = (startIndex + pageSize).coerceAtMost(allMatches.size)
+        if(startIndex>endIndex)return
+        val nextPage = allMatches.subList(startIndex, endIndex)
+        println(currentPage)
+        for (match in nextPage) {
+            resultsList.addComponent(createResultPanel(match.line, match.col, match.strLen, match.matchPosition))
+//            println("Pepe ${match.line} ${match.col} ${match.matchPosition}")
+        }
+
+        currentPage++
+        refreshComponent()
     }
 
     private fun createResultPanel(line: Int, col: Int, strLen: Int, matchPosition: Int): JBPanel<JBPanel<*>> {
@@ -71,6 +97,19 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             add(JBLabel(createHighlightedLabelText(line, col, strLen)).apply {
                 alignmentX = Component.LEFT_ALIGNMENT
             })
+        }
+    }
+
+    private fun addScrollListener() {
+//        val scrollPane = JBScrollPane(resultsList)
+        println("AYYYYYYYYYYYYYYYY NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+        resultsScrollPane.verticalScrollBar.addAdjustmentListener { e ->
+            if (!e.valueIsAdjusting) {
+                val scrollBar = e.source as JScrollBar
+                if (scrollBar.value + scrollBar.visibleAmount >= scrollBar.maximum) {
+                    loadNextPage()
+                }
+            }
         }
     }
 
@@ -124,3 +163,5 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         resultsList.repaint()
     }
 }
+
+data class MatchData(val line: Int, val col: Int, val strLen: Int, val matchPosition: Int)

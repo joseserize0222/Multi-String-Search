@@ -1,6 +1,7 @@
 package com.github.alaindavid001.multistringsearch.utils
 
 import java.util.*
+import kotlin.math.max
 
 /**
  * Implementation of the
@@ -10,12 +11,15 @@ import java.util.*
  * @param text The text forming the text searched through for matches
  * @param patterns A list of patterns
  */
-class AhoCorasick(private val text: String, private val patterns: List<String>) {
+class AhoCorasick(private val text: String, private val patterns: List<String>, var offset: Int) {
     private val alphaSet: MutableSet<Char> = text.toHashSet()
     private val hashMap: MutableMap<Char, Int> = HashMap()
     private var alphaSize = 128
     private val trie = mutableListOf<Vertex>()
     private val matches = Array(patterns.size) { mutableListOf<Int>() }
+    private val largestPattern: Int = try { patterns.maxOf { it.length } } catch (e: Exception) { 0 }
+    private val pageSize = 10
+
 
     init {
         processAlphabet()
@@ -24,6 +28,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
             addPattern(patterns[i], i)
         }
         processSuffixLinks()
+        offset = max(0, offset - largestPattern)
         findMatches()
     }
 
@@ -50,7 +55,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
      *
      * @return array of list storing indices in the text matched against
      */
-    fun getMatches() = matches
+    fun getMatches() = AhoSearchResult(matches, offset)
 
     /**
      * Add a given pattern to the Trie.
@@ -134,9 +139,10 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
      */
     private fun findMatches() {
         var curr = trie[0]
-
-        for (i in text.indices) {
-            val ind = getCode(text[i])
+        var numberOfMatches = 0
+        var patternsNeeded = true
+        while (offset < text.length && patternsNeeded) {
+            val ind = getCode(text[offset])
             while (true) {
                 if (curr.edge[ind] != -1) {
                     curr = trie[curr.edge[ind]]
@@ -155,11 +161,17 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
                     break
                 }
                 for (matchIndex in matchState.patIndices) {
-                    matches[matchIndex].add(i - patterns[matchIndex].length + 1)
+                    matches[matchIndex].add(offset - patterns[matchIndex].length + 1)
+                    numberOfMatches++
+                    if (numberOfMatches == pageSize) {
+                        patternsNeeded = false
+                    }
                 }
                 matchState = trie[matchState.link]
             }
+            offset++
         }
+        println("Number of matches: $numberOfMatches")
     }
 
     /**
@@ -177,3 +189,5 @@ class AhoCorasick(private val text: String, private val patterns: List<String>) 
         var matchLink = 0
     }
 }
+
+class AhoSearchResult(val matches: Array<MutableList<Int>>, val newOffset: Int)

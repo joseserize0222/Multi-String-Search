@@ -2,6 +2,8 @@ package com.github.alaindavid001.multistringsearch.ui
 
 import com.github.alaindavid001.multistringsearch.MyBundle
 import com.github.alaindavid001.multistringsearch.search.SearchManager
+import com.github.alaindavid001.multistringsearch.utils.AhoCorasick
+import com.github.alaindavid001.multistringsearch.utils.AhoSearchResult
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.observable.util.addComponent
 import com.intellij.openapi.project.Project
@@ -27,10 +29,12 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         showNoFileSelectedMessage(this)
     }
     private var resultsScrollPane = JBScrollPane()
-    private var allMatches: List<MatchData> = emptyList()
+    private var allMatches: MutableList<MatchData> = mutableListOf()
     private val pageSize: Int = 10
     private var visibleStartIndex = 0
     private var visibleEndIndex = 0
+    private var offset = 0
+    private var possibleRepetitions: Set<MatchData> = emptySet()
 
     fun getWrappedResultsPanel() = JBPanel<JBPanel<*>>().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -58,13 +62,17 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         addScrollListener()
     }
 
-    fun updateResultsList(matches: Array<MutableList<Int>>) {
+    fun updateResultsList(matchResult: AhoSearchResult) {
+        val matches = matchResult.matches
+        offset = matchResult.newOffset
+
         allMatches = matches.flatMapIndexed { patternIndex, positions ->
             positions.map { position ->
                 val (line, col) = searchManager.getLineAndColumn(project, position) ?: Pair(0, 0)
                 MatchData(line, col, searchManager.myPatterns[patternIndex].length, position)
             }
-        }
+        }.toMutableList()
+        possibleRepetitions = allMatches.toMutableSet()
         println(allMatches.size)
         visibleStartIndex = 0
         visibleEndIndex = 0
@@ -84,6 +92,26 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             visibleEndIndex = nextEndIndex
             refreshComponent()
         }
+
+
+        // New search here, update results for the next page
+        val text = searchManager.myOpenedFileText ?: ""
+
+        if (text.isNotEmpty() && visibleEndIndex == allMatches.size) {
+            val aho = AhoCorasick(text, searchManager.myPatterns, offset)
+            val matchResult = aho.getMatches()
+            val matches = (matchResult.matches.flatMapIndexed { patternIndex, positions ->
+                positions.map { position ->
+                    val (line, col) = searchManager.getLineAndColumn(project, position) ?: Pair(0, 0)
+                    MatchData(line, col, searchManager.myPatterns[patternIndex].length, position)
+                }
+            }).toSet() - possibleRepetitions
+
+            allMatches.addAll(matches)
+            offset = matchResult.newOffset
+            possibleRepetitions = matches
+        }
+
         println("$visibleStartIndex + $visibleEndIndex")
     }
 

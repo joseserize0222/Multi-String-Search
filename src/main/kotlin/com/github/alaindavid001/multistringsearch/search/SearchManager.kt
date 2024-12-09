@@ -21,7 +21,7 @@ class SearchManager {
     private var currentTask: Future<*>? = null
     private var debounceDelay: Long = 300
 
-    private var myOpenedFileText : String? = null
+    var myOpenedFileText : String? = null
     var myPatterns : List<String> = emptyList()
 
     fun updateResultsDebounced(project: Project, patternInputPanel: PatternInputPanel, resultsPanel: ResultsPanel) {
@@ -44,7 +44,7 @@ class SearchManager {
             myPatterns = patternInputPanel.getTextFieldValues().toSet().toList()
 
             resultsPanel.clearResults()
-            val ac = AhoCorasick(myOpenedFileText ?: "", myPatterns)
+            val ac = AhoCorasick(myOpenedFileText ?: "", myPatterns, 0)
 
             // Update the UI on the Event Dispatch Thread (EDT) after computation finishes
             ApplicationManager.getApplication().invokeLater {

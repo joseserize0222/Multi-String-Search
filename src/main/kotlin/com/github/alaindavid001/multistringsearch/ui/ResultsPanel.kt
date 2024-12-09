@@ -17,20 +17,20 @@ import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.border.LineBorder
 import com.intellij.ui.components.JBScrollPane
-import javax.swing.JScrollBar
 
 class ResultsPanel(private val project: Project, private val searchManager: SearchManager) {
     private val resultsList = JBPanel<JBPanel<*>>().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         alignmentX = Component.CENTER_ALIGNMENT
         alignmentY = Component.CENTER_ALIGNMENT
-        border = BorderFactory.createEmptyBorder(0,0,10,0)
+        border = BorderFactory.createEmptyBorder(0, 0, 10, 0)
         showNoFileSelectedMessage(this)
     }
     private var resultsScrollPane = JBScrollPane()
     private var allMatches: List<MatchData> = emptyList()
-    private var currentPage: Int = 0
     private val pageSize: Int = 10
+    private var visibleStartIndex = 0
+    private var visibleEndIndex = 0
 
     fun getWrappedResultsPanel() = JBPanel<JBPanel<*>>().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -66,25 +66,79 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             }
         }
         println(allMatches.size)
-
-        currentPage = 0
+        visibleStartIndex = 0
+        visibleEndIndex = 0
         clearResults()
         loadNextPage()
     }
 
     private fun loadNextPage() {
-        val startIndex = currentPage * pageSize
-        val endIndex = (startIndex + pageSize).coerceAtMost(allMatches.size)
-        if(startIndex>endIndex)return
-        val nextPage = allMatches.subList(startIndex, endIndex)
-        println(currentPage)
-        for (match in nextPage) {
-            resultsList.addComponent(createResultPanel(match.line, match.col, match.strLen, match.matchPosition))
-//            println("Pepe ${match.line} ${match.col} ${match.matchPosition}")
-        }
+        val nextStartIndex = visibleEndIndex
+        val nextEndIndex = (nextStartIndex + pageSize).coerceAtMost(allMatches.size)
 
-        currentPage++
+        if (nextStartIndex < nextEndIndex) {
+            val nextPage = allMatches.subList(nextStartIndex, nextEndIndex)
+            for (match in nextPage) {
+                resultsList.addComponent(createResultPanel(match.line, match.col, match.strLen, match.matchPosition))
+            }
+            visibleEndIndex = nextEndIndex
+            refreshComponent()
+        }
+        println("$visibleStartIndex + $visibleEndIndex")
+    }
+
+    private fun loadPreviousPage() {
+        val prevEndIndex = visibleStartIndex
+        val prevStartIndex = (prevEndIndex - pageSize).coerceAtLeast(0)
+
+        if (prevStartIndex < prevEndIndex) {
+            val prevPage = allMatches.subList(prevStartIndex, prevEndIndex)
+            for (match in prevPage.reversed()) {
+                resultsList.apply {
+                    add(createResultPanel(match.line, match.col, match.strLen, match.matchPosition), 0)
+                }
+            }
+            visibleStartIndex = prevStartIndex
+            refreshComponent()
+        }
+        println("$visibleStartIndex + $visibleEndIndex")
+    }
+
+    private fun removeComponentsAbove() {
+        while (resultsList.componentCount > pageSize * 2) {
+            resultsList.remove(0)
+            visibleStartIndex++
+        }
         refreshComponent()
+    }
+
+    private fun removeComponentsBelow() {
+        while (resultsList.componentCount > pageSize * 2) {
+            resultsList.remove(resultsList.componentCount - 1)
+            visibleEndIndex--
+        }
+        refreshComponent()
+    }
+
+    private fun addScrollListener() {
+        resultsScrollPane.addMouseWheelListener { e ->
+            val scrollBar = resultsScrollPane.verticalScrollBar
+
+            // Determine scroll direction: positive is scrolling down, negative is scrolling up
+            if (e.wheelRotation > 0) {
+                // Scrolling down
+                if (scrollBar.value + scrollBar.visibleAmount >= scrollBar.maximum) {
+                    loadNextPage()
+                    removeComponentsAbove()
+                }
+            } else if (e.wheelRotation < 0) {
+                // Scrolling up
+                if (scrollBar.value <= scrollBar.minimum) {
+                    loadPreviousPage()
+                    removeComponentsBelow()
+                }
+            }
+        }
     }
 
     private fun createResultPanel(line: Int, col: Int, strLen: Int, matchPosition: Int): JBPanel<JBPanel<*>> {
@@ -100,33 +154,16 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         }
     }
 
-    private fun addScrollListener() {
-//        val scrollPane = JBScrollPane(resultsList)
-        println("AYYYYYYYYYYYYYYYY NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-        resultsScrollPane.verticalScrollBar.addAdjustmentListener { e ->
-            if (!e.valueIsAdjusting) {
-                val scrollBar = e.source as JScrollBar
-                if (scrollBar.value + scrollBar.visibleAmount >= scrollBar.maximum) {
-                    loadNextPage()
-                }
-            }
-        }
-    }
-
     private fun createHighlightedLabelText(line: Int, col: Int, strLen: Int): String {
         val fullText = searchManager.getLineText(project, line) ?: return "Error while getting line"
 
-        // Ensure offset and length are within bounds
         val safeOffset = col.coerceAtLeast(0).coerceAtMost(fullText.length)
         val end = (safeOffset + strLen).coerceAtMost(fullText.length)
-
-        // Split the text into three parts: before, highlighted, and after
         val before = fullText.substring(0, safeOffset)
         val highlighted = fullText.substring(safeOffset, end)
         val after = fullText.substring(end)
 
-        // Wrap the highlighted part with HTML tags for styling
-        return "<html><body>Line ${line+1} Col ${col+1}: $before<span style='background-color: #FFD54F;'><font color='black'>$highlighted</font></span>$after</body></html>"
+        return "<html><body>Line ${line + 1} Col ${col + 1}: $before<span style='background-color: #FFD54F;'><font color='black'>$highlighted</font></span>$after</body></html>"
     }
 
     private fun createNavigateButton(matchPosition: Int): JButton {
@@ -136,7 +173,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             maximumSize = Dimension(20, 20)
             alignmentX = Component.CENTER_ALIGNMENT
             alignmentY = Component.CENTER_ALIGNMENT
-            isBorderPainted = false // Remove the border
+            isBorderPainted = false
             cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
 
             addActionListener {

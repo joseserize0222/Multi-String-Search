@@ -81,7 +81,7 @@ The UI includes PatternInputPanel for search input and ResultsPanel for displayi
 
 - **Manually**:
 
-  Download the [latest release]([https://github.com/Alain-David-001/Multi-String-Search/releases/latest](https://github.com/joseserize0222/Multi-String-Search/releases/tag/0.0.1)) and install it manually using  
+  Download the [latest release](https://github.com/joseserize0222/Multi-String-Search/releases) and install it manually using  
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 ## Acknowledgements

@@ -30,11 +30,11 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
     }
     private var resultsScrollPane = JBScrollPane()
     private var allMatches: MutableList<MatchData> = mutableListOf()
-    private val pageSize: Int = 10
     private var visibleStartIndex = 0
     private var visibleEndIndex = 0
     private var offset = 0
     private var possibleRepetitions: Set<MatchData> = emptySet()
+    val pageSize: Int = 10
 
     fun getWrappedResultsPanel() = JBPanel<JBPanel<*>>().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -98,7 +98,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
         val text = searchManager.myOpenedFileText ?: ""
 
         if (text.isNotEmpty() && visibleEndIndex == allMatches.size) {
-            val aho = AhoCorasick(text, searchManager.myPatterns, offset)
+            val aho = AhoCorasick(text, searchManager.myPatterns, offset, pageSize)
             val matchResult = aho.getMatches()
             val matches = (matchResult.matches.flatMapIndexed { patternIndex, positions ->
                 positions.map { position ->

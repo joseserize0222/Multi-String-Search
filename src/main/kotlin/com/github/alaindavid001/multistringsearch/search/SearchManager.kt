@@ -44,7 +44,7 @@ class SearchManager {
             myPatterns = patternInputPanel.getTextFieldValues().toSet().toList()
 
             resultsPanel.clearResults()
-            val ac = AhoCorasick(myOpenedFileText ?: "", myPatterns, 0)
+            val ac = AhoCorasick(myOpenedFileText ?: "", myPatterns, 0, resultsPanel.pageSize)
 
             // Update the UI on the Event Dispatch Thread (EDT) after computation finishes
             ApplicationManager.getApplication().invokeLater {

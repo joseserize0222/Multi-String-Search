@@ -11,14 +11,13 @@ import kotlin.math.max
  * @param text The text forming the text searched through for matches
  * @param patterns A list of patterns
  */
-class AhoCorasick(private val text: String, private val patterns: List<String>, var offset: Int) {
+class AhoCorasick(private val text: String, private val patterns: List<String>, var offset: Int, private val pageSize: Int) {
     private val alphaSet: MutableSet<Char> = text.toHashSet()
     private val hashMap: MutableMap<Char, Int> = HashMap()
     private var alphaSize = 128
     private val trie = mutableListOf<Vertex>()
     private val matches = Array(patterns.size) { mutableListOf<Int>() }
     private val largestPattern: Int = try { patterns.maxOf { it.length } } catch (e: Exception) { 0 }
-    private val pageSize = 10
 
 
     init {

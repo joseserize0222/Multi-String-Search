@@ -73,7 +73,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             }
         }.toMutableList()
         possibleRepetitions = allMatches.toMutableSet()
-        println(allMatches.size)
+//        println(allMatches.size)
         visibleStartIndex = 0
         visibleEndIndex = 0
         clearResults()
@@ -112,7 +112,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             possibleRepetitions = matches
         }
 
-        println("$visibleStartIndex + $visibleEndIndex")
+//        println("$visibleStartIndex + $visibleEndIndex")
     }
 
     private fun loadPreviousPage() {
@@ -129,7 +129,7 @@ class ResultsPanel(private val project: Project, private val searchManager: Sear
             visibleStartIndex = prevStartIndex
             refreshComponent()
         }
-        println("$visibleStartIndex + $visibleEndIndex")
+//        println("$visibleStartIndex + $visibleEndIndex")
     }
 
     private fun removeComponentsAbove() {

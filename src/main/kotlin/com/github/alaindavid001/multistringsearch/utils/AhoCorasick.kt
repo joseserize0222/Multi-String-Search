@@ -171,7 +171,7 @@ class AhoCorasick(private val text: String, private val patterns: List<String>, 
             }
             offset++
         }
-        println("Number of matches: $numberOfMatches")
+//        println("Number of matches: $numberOfMatches")
     }
 
     /**
